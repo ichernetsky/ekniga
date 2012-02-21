@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 2.6.2)
 project(EKniga C)
 
 set(APPNAME ekniga)
+set(LIBNAME libekniga)
 set(APPLIBS)
 
 ## pkg-config
