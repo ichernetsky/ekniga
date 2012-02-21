@@ -3,7 +3,7 @@ all: configure build
 
 .PHONY: configure
 configure:
-	mkdir -p _build && cd _build && cmake ..
+	mkdir -p _build && cd _build && cmake -DCMAKE_BUILD_TYPE=debug ..
 
 .PHONY: build
 build:
