@@ -3,12 +3,14 @@
 static gint scale_width = 0;
 static gint scale_height = 0;
 static gboolean gray = FALSE;
+static gint threshold = 0;
 
 static GOptionEntry entries[] =
 {
-    { "scale-width",  0, 0, G_OPTION_ARG_INT,  &scale_width,  "Width of output image",  "X" },
-    { "scale-height", 0, 0, G_OPTION_ARG_INT,  &scale_height, "Height of output image", "Y" },
-    { "gray",         0, 0, G_OPTION_ARG_NONE, &gray,         "Make image gray", NULL },
+    { "scale-width",  0, 0, G_OPTION_ARG_INT,  &scale_width,  "Width of output image",   "X"  },
+    { "scale-height", 0, 0, G_OPTION_ARG_INT,  &scale_height, "Height of output image",  "Y"  },
+    { "gray",         0, 0, G_OPTION_ARG_NONE, &gray,         "Make image gray",         NULL },
+    { "threshold",    0, 0, G_OPTION_ARG_INT,  &threshold,    "Threshold value [1-254]", "T"  },
     { NULL }
 };
 
@@ -45,6 +47,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    if (threshold) {
+        if (threshold < 1 || threshold > 254) {
+            g_printerr("threshold must be in [1, 254]\n");
+            return 1;
+        }
+        gray = TRUE;
+    }
+
     input_filename  = argv[1];
     output_filename = argv[2];
 
@@ -68,6 +78,13 @@ int main(int argc, char *argv[])
         ek_image_gray(image, gray_image);
         ek_image_free(image);
         image = gray_image;
+    }
+
+    if (threshold) {
+        EkImage *thresholded_image = ek_image_new(image->width, image->height, EK_COLOR_TYPE_GRAY);
+        ek_image_threshold(image, thresholded_image, threshold);
+        ek_image_free(image);
+        image = thresholded_image;
     }
 
     if (scale_width || scale_height) {

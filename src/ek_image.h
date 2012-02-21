@@ -10,6 +10,9 @@ typedef enum EkColorType {
 
 typedef guint8 EkGray;
 
+#define EK_GRAY_BLACK  (0)
+#define EK_GRAY_WHITE  (255)
+
 typedef struct __attribute__ ((__packed__)) EkRgb
 {
     guint8 r;
