@@ -1,4 +1,5 @@
 set(EKNIGA_SOURCES ek_image.c
+                   ek_basicops.c
                    ek_io.c
                    ekniga.c)
 add_executable(${APPNAME} ${EKNIGA_SOURCES})

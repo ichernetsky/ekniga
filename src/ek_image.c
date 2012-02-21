@@ -22,7 +22,7 @@ EkImage *ek_image_new(guint16     width,
     g_assert(size > 0);
 
     image->data_size = size;
-    image->data = g_malloc(size);
+    image->data.raw = g_malloc(size);
 
     return image;
 }
@@ -30,7 +30,7 @@ EkImage *ek_image_new(guint16     width,
 void ek_image_free(EkImage *image)
 {
     if (image)
-        g_free(image->data);
+        g_free(image->data.raw);
     g_free(image);
 }
 

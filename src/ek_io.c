@@ -171,7 +171,7 @@ EkImage *ek_image_new_from_stream(FILE *stream,
 
     bytes_per_row = width * ek_image_bytes_per_pixel(image);
 
-    guint8 *data = image->data;
+    guint8 *data = image->data.raw;
     for (i = 0; i < height; i++) {
         memmove(data, rows[i], bytes_per_row);
         data += bytes_per_row;
@@ -282,7 +282,7 @@ gboolean ek_image_save_to_stream(const EkImage *image,
     rows = png_malloc(png, image->height * sizeof(png_bytep));
     bytes_per_pixel = ek_image_bytes_per_pixel(image);
 
-    guint8 *data = image->data;
+    guint8 *data = image->data.raw;
     for (i = 0; i < image->height; i++) {
         rows[i] = data;
         data += image->width * bytes_per_pixel;

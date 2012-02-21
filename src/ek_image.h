@@ -29,9 +29,16 @@ typedef struct EkImage
 
     EkColorType color_type;
 
-    void    *data;
+    union {
+        guint8 *raw;
+        EkGray *gray;
+        EkRgb  *rgb;
+    } data;
+
     guint64 data_size;
 } EkImage;
+
+#define ek_index(i, j, width)  ((i) * (width) + (j))
 
 EkImage *ek_image_new(guint16      width,
                       guint16      height,
