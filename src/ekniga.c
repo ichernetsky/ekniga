@@ -1,103 +1,24 @@
-#include "ekniga.h"
+#include <gtk/gtk.h>
 
-static gint scale_width = 0;
-static gint scale_height = 0;
-static gboolean gray = FALSE;
-static gint threshold = 0;
-
-static GOptionEntry entries[] =
+static void on_main_window_destroy(GtkWidget *widget,
+                                   gpointer   data)
 {
-    { "scale-width",  0, 0, G_OPTION_ARG_INT,  &scale_width,  "Width of output image",   "X"  },
-    { "scale-height", 0, 0, G_OPTION_ARG_INT,  &scale_height, "Height of output image",  "Y"  },
-    { "gray",         0, 0, G_OPTION_ARG_NONE, &gray,         "Make image gray",         NULL },
-    { "threshold",    0, 0, G_OPTION_ARG_INT,  &threshold,    "Threshold value [1-254]", "T"  },
-    { NULL }
-};
-
-static void usage(void)
-{
-    g_printerr("usage: ekniga [options] <input> <output>\n");
-    g_printerr("run ekniga --help to see available options");
+    gtk_main_quit();
 }
+
 
 int main(int argc, char *argv[])
 {
-    EkImage *image;
-    GError *error = NULL;
-    GOptionContext *context;
-    gchar *input_filename, *output_filename;
+    GtkWidget *window;
 
-    /* Parsing command-line options */
+    gtk_init(&argc, &argv);
 
-    context = g_option_context_new("- EBook processing application.");
-    g_option_context_add_main_entries (context, entries, NULL);
-    if (!g_option_context_parse(context, &argc, &argv, &error))
-    {
-        g_printerr("option parsing failed: %s\n", error->message);
-        return 1;
-    }
+    window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 
-    if (argc != 3) {
-        usage();
-        return 1;
-    }
+    g_signal_connect(window, "destroy", G_CALLBACK(on_main_window_destroy), NULL);
 
-    if (scale_width < 0 || scale_height < 0) {
-        g_printerr("scale options must be >= 0\n");
-        return 1;
-    }
-
-    if (threshold) {
-        if (threshold < 1 || threshold > 254) {
-            g_printerr("threshold must be in [1, 254]\n");
-            return 1;
-        }
-        gray = TRUE;
-    }
-
-    input_filename  = argv[1];
-    output_filename = argv[2];
-
-    /* Processing image */
-
-    image = ek_image_new_from_file(input_filename, &error);
-    if (image == NULL) {
-        g_printerr("%s\n", error->message);
-        return 1;
-    }
-
-    if (scale_width || scale_height) {
-        if (!scale_width)
-            scale_width = image->width * scale_height / image->height;
-        if (!scale_height)
-            scale_height = image->height * scale_width / image->width;
-    }
-
-    if (gray) {
-        EkImage *gray_image = ek_image_new(image->width, image->height, EK_COLOR_TYPE_GRAY);
-        ek_image_gray(image, gray_image);
-        ek_image_free(image);
-        image = gray_image;
-    }
-
-    if (threshold) {
-        EkImage *thresholded_image = ek_image_new(image->width, image->height, EK_COLOR_TYPE_GRAY);
-        ek_image_threshold(image, thresholded_image, threshold);
-        ek_image_free(image);
-        image = thresholded_image;
-    }
-
-    if (scale_width || scale_height) {
-        EkImage *scaled_image = ek_image_new(scale_width, scale_height, image->color_type);
-        ek_image_scale(image, scaled_image);
-        ek_image_free(image);
-        image = scaled_image;
-    }
-
-    if (!ek_image_save_to_file(image, output_filename, &error)) {
-        g_printerr("%s\n", error->message);
-        return 1;
-    }
+    gtk_widget_show(window);
+    gtk_main();
 
     return 0;
 }
